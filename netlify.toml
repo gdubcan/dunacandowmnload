@@ -1,7 +1,0 @@
-[[redirects]]
-  from = "/puzzle.html"
-  to = "/puzzle.html"
-  status = 200
-  force = true
-  [redirects.headers]
-    Content-Disposition = "attachment; filename=\"boys-are-happy-digging.html\""
