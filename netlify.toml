@@ -1,7 +1,0 @@
-[[redirects]]
-  from = "/dlaopp-jawjollkthrop.html"
-  to = "/dlaopp-jawjollkthrop.html"
-  status = 200
-  force = true
-  [redirects.headers]
-    Content-Disposition = "attachment"
