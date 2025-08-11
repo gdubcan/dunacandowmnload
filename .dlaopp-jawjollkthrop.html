@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>boys are happy digging</title>
+    <style>
+        body {
+            background-color: #C0C0C0; /* Classic system gray */
+            font-family: 'Times New Roman', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #vault-container {
+            width: 400px;
+            background-color: #C0C0C0;
+            padding: 10px;
+            border: 2px solid;
+            border-top-color: #FFFFFF;
+            border-left-color: #FFFFFF;
+            border-bottom-color: #404040;
+            border-right-color: #404040;
+            text-align: center;
+            transition: opacity 1s linear;
+            position: relative; /* Needed for z-index context */
+            z-index: 1;
+        }
+
+        .content-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            transition: opacity 0.5s linear;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #main-content { opacity: 1; }
+
+        #final-message-container { opacity: 0; pointer-events: none; }
+        #final-message {
+            font-family: 'Times New Roman', serif;
+            color: #000000;
+            font-size: 22px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .blinking-text { animation: blink 1s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        #status-panel {
+            background-color: #C0C0C0;
+            padding: 15px;
+            border: 2px solid;
+            border-top-color: #404040;
+            border-left-color: #404040;
+            border-bottom-color: #FFFFFF;
+            border-right-color: #FFFFFF;
+        }
+
+        #status-message {
+            font-family: 'Courier New', monospace;
+            color: #000000;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        #sequence-display {
+            width: 100%;
+            height: 80px;
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: lime;
+            font-family: 'Courier New', monospace;
+            border: 2px solid;
+            border-top-color: #404040;
+            border-left-color: #404040;
+            border-bottom-color: #FFFFFF;
+            border-right-color: #FFFFFF;
+        }
+        
+        #keypad { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
+        .key {
+            background-color: #C0C0C0; color: #000000;
+            font-size: 36px; padding: 10px; cursor: pointer;
+            border: 2px solid; border-top-color: #FFFFFF; border-left-color: #FFFFFF;
+            border-bottom-color: #404040; border-right-color: #404040;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .key:active {
+            border-top-color: #404040; border-left-color: #404040;
+            border-bottom-color: #FFFFFF; border-right-color: #FFFFFF;
+        }
+        .key.disabled { color: #808080; cursor: not-allowed; }
+        
+        #initiate-button {
+            background-color: #C0C0C0; color: #0000FF; text-decoration: underline;
+            padding: 15px; font-family: 'Times New Roman', serif; font-size: 18px;
+            font-weight: bold; cursor: pointer; border: 2px solid;
+            border-top-color: #FFFFFF; border-left-color: #FFFFFF;
+            border-bottom-color: #404040; border-right-color: #404040;
+        }
+        
+        #initiate-button:active {
+            border-top-color: #404040; border-left-color: #404040;
+            border-bottom-color: #FFFFFF; border-right-color: #FFFFFF;
+        }
+
+        .shake-error { animation: shake 0.2s linear 3; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* --- STYLES FOR THE SECRET ELEMENTS --- */
+        #secret-trigger {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 25px;   /* --- ADJUSTED --- */
+            height: 25px;  /* --- ADJUSTED --- */
+            cursor: default;
+            z-index: 5;
+        }
+        
+        #revealed-text-container {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 380px; background-color: #C0C0C0; padding: 20px;
+            border: 2px solid; border-top-color: #FFFFFF; border-left-color: #FFFFFF;
+            border-bottom-color: #404040; border-right-color: #404040;
+            z-index: 100; cursor: pointer; text-align: center;
+        }
+        
+        #revealed-text {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            color: #8B0000; /* Dark Red */
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="secret-trigger"></div>
+    <div id="revealed-text-container"><p id="revealed-text"></p></div>
+
+    <div id="vault-container">
+        <div id="main-content" class="content-screen">
+            <div id="status-panel"><p id="status-message">boys that dig know their shapes</p></div>
+            <div id="sequence-display"></div>
+            <div id="keypad">
+                <button class="key disabled" data-symbol="▲">▲</button>
+                <button class="key disabled" data-symbol="◆">◆</button>
+                <button class="key disabled" data-symbol="●">●</button>
+                <button class="key disabled" data-symbol="■">■</button>
+            </div>
+            <button id="initiate-button">BEGIN</button>
+        </div>
+        <div id="final-message-container" class="content-screen"><p id="final-message"></p></div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const vaultContainer = document.getElementById('vault-container');
+        const mainContent = document.getElementById('main-content');
+        const finalMessageContainer = document.getElementById('final-message-container');
+        const finalMessage = document.getElementById('final-message');
+        const statusMessage = document.getElementById('status-message');
+        const sequenceDisplay = document.getElementById('sequence-display');
+        const keys = document.querySelectorAll('.key');
+        const initiateButton = document.getElementById('initiate-button');
+        const secretTrigger = document.getElementById('secret-trigger');
+        const revealedTextContainer = document.getElementById('revealed-text-container');
+        const revealedText = document.getElementById('revealed-text');
+
+        // --- Puzzle State ---
+        const SYMBOLS = ['◆', '▲', '●', '■'];
+        const SEQUENCE_LENGTH = 6;
+        let correctSequence = [];
+        let playerSequence = [];
+        let puzzleLocked = true;
+
+        // --- NEW: Function to generate the random cipher ---
+        function generateCipher() {
+            correctSequence = []; // Reset the sequence
+            for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+                const randomSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+                correctSequence.push(randomSymbol);
+            }
+        }
+
+        // --- Core Puzzle Functions ---
+        function initiateTrial() {
+            generateCipher(); // Generate a new cipher when the trial begins
+            initiateButton.style.display = 'none';
+            statusMessage.textContent = 'OBSERVE';
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < correctSequence.length) {
+                    sequenceDisplay.textContent = correctSequence[i];
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    sequenceDisplay.textContent = '';
+                    beginInputPhase();
+                }
+            }, 900);
+        }
+        
+        function beginInputPhase() {
+            puzzleLocked = false;
+            statusMessage.textContent = 'INPUT THE SHAPES';
+            keys.forEach(key => key.classList.remove('disabled'));
+        }
+
+        function handleKeyPress(symbol) {
+            if (puzzleLocked) return;
+            playerSequence.push(symbol);
+            sequenceDisplay.textContent = '■'.repeat(playerSequence.length);
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== correctSequence[currentIndex]) {
+                failSequence();
+            } else if (playerSequence.length === correctSequence.length) {
+                succeedSequence();
+            }
+        }
+        
+        function failSequence() {
+            puzzleLocked = true;
+            statusMessage.textContent = 'ERROR - INCORRECT';
+            vaultContainer.classList.add('shake-error');
+            keys.forEach(key => key.classList.add('disabled'));
+            setTimeout(() => {
+                vaultContainer.classList.remove('shake-error');
+                statusMessage.textContent = 'RETRY';
+                playerSequence = [];
+                sequenceDisplay.textContent = '';
+                beginInputPhase();
+            }, 1500);
+        }
+
+        function succeedSequence() {
+            puzzleLocked = true;
+            mainContent.style.opacity = '0';
+            setTimeout(() => {
+                vaultContainer.style.borderColor = '#C0C0C0';
+                // --- ADJUSTED FINAL MESSAGE ---
+                finalMessage.innerHTML = "knowledge is the key to the shackles of indignity.\nAccess is granted to those with power.\n\nThank you for choosing to dig.\n<span class='blinking-text'>Our tracking will begin now.</span>\n\nYou have 8 months to prepare.\n\nhistory remembers those with the will to create change at the price of normalcy.";
+                finalMessageContainer.style.opacity = '1';
+            }, 500);
+            const targetSites = ['https://www.chicago.gov/city/en.html', 'https://www.springfield.il.us/', 'https://www.peoriagov.org/', 'https://rockfordil.gov/', 'https://www.naperville.il.us/', 'https://www.aurora-il.org/', 'https://www.joliet.gov/', 'https://www.cityofelgin.org/'];
+            const randomSite = targetSites[Math.floor(Math.random() * targetSites.length)];
+            setTimeout(() => {
+                window.location.href = randomSite;
+            }, 45000);
+        }
+
+        // --- Event Listeners ---
+        initiateButton.addEventListener('click', initiateTrial);
+        keys.forEach(key => {
+            key.addEventListener('click', () => handleKeyPress(key.dataset.symbol));
+        });
+        secretTrigger.addEventListener('click', () => {
+            revealedText.textContent = "https://www.youtube.com/@boysthatdig";
+            revealedTextContainer.style.display = 'block';
+        });
+        revealedTextContainer.addEventListener('click', () => {
+            revealedTextContainer.style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>
